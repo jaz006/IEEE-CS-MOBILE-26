@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:todo/screens/home_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo/screens/home.dart';
+
+import 'Cubit_services/bloc_observer.dart';
+import 'Cubit_services/cubit.dart';
+
 
 void main() {
+  Bloc.observer = MyBlocObserver();
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+    return BlocProvider(
+      create: (BuildContext context) => AppCubit()..createDatabase(),  
+      child: const MaterialApp(
+        home: HomeScreen(),
+        debugShowCheckedModeBanner: false,
+      ),
     );
   }
 }
-

@@ -17,8 +17,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-  final NotchBottomBarController _controller = NotchBottomBarController(index: 0);
+  final NotchBottomBarController _controller = NotchBottomBarController(
+    index: 0,
+  );
   final _pageControler = PageController(initialPage: 0);
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _titleController = TextEditingController();
@@ -42,28 +43,35 @@ class _HomeScreenState extends State<HomeScreen> {
           const DoneScreen(),
         ];
 
-        List<String> titles = ['Tasks','Archived',' Done'];
+        List<String> titles = [
+          '${AppCubit.get(context).tasks.length} tasks',
+              '${AppCubit.get(context).archiveTasks.length} archived',
+              '${AppCubit.get(context).doneTasks.length} done',
+        ];
 
         return Scaffold(
           key: _scaffoldKey,
           backgroundColor: const Color.fromARGB(255, 88, 90, 88),
-            appBar: AppBar(
-              automaticallyImplyActions: false,
-              backgroundColor: const Color.fromARGB(255, 20, 20, 20),
-            
-              title: ValueListenableBuilder<int>(
-                valueListenable: _valueNotifier,
-                builder: (context, value, child) {
-                  return Text(
-                    titles[value],
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  );
-                },
-              ),
+          appBar: AppBar(
+            centerTitle: true,
+            automaticallyImplyActions: false,
+            backgroundColor: const Color.fromARGB(169, 172, 170, 151),
+
+            title: ValueListenableBuilder<int>(
+              valueListenable: _valueNotifier,
+              builder: (BuildContext context, int index, Widget? child) {
+
+                return Text(
+                  titles[index],
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                );
+              },
             ),
+          ),
           body: PageView(
             controller: _pageControler,
             physics: const NeverScrollableScrollPhysics(),
@@ -89,28 +97,32 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () async {
                 if (isBottomSheetShow) {
                   if (_formKey.currentState!.validate()) {
-                    cubit.insertToDatabase(
-                      title: _titleController.text,
-                      time: _timeController.text,
-                      date: _dateController.text,
-                      status: "status",
-                    ).then((value) {
-                      Navigator.pop(context);
-                      isBottomSheetShow = false;
-                    });
+                    cubit
+                        .insertToDatabase(
+                          title: _titleController.text,
+                          time: _timeController.text,
+                          date: _dateController.text,
+                          status: "status",
+                        )
+                        .then((value) {
+                          Navigator.pop(context);
+                          isBottomSheetShow = false;
+                        });
                   }
                 } else {
                   _scaffoldKey.currentState!
-                      .showBottomSheet((context) => AddTasksScreen(
-                    formKey: _formKey,
-                    titleController: _titleController,
-                    timeController: _timeController,
-                    dateController: _dateController,
-                  ))
+                      .showBottomSheet(
+                        (context) => AddTasksScreen(
+                          formKey: _formKey,
+                          titleController: _titleController,
+                          timeController: _timeController,
+                          dateController: _dateController,
+                        ),
+                      )
                       .closed
                       .then((value) {
-                    isBottomSheetShow = false;
-                  });
+                        isBottomSheetShow = false;
+                      });
                   isBottomSheetShow = true;
                 }
               },
@@ -135,18 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
             showShadow: false,
             durationInMilliSeconds: 300,
             bottomBarItems: [
-              bottomBarItem(
-                icon: Icons.home,
-                text: 'home',
-              ),
-              bottomBarItem(
-                icon: Icons.archive,
-                text: 'archived',
-              ),
-              bottomBarItem(
-                icon: Icons.check_box,
-                text: 'done',
-              ),
+              bottomBarItem(icon: Icons.home, text: 'home'),
+              bottomBarItem(icon: Icons.archive, text: 'archived'),
+              bottomBarItem(icon: Icons.check_box, text: 'done'),
             ],
             onTap: (int value) {
               _pageControler.jumpToPage(value);
